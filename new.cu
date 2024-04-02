@@ -2,13 +2,14 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include <iostream>
+#include<Windows.h>
 
 
 __global__ void addfromGPU(float *A, float *B, float *C, const int n) {
 	const int bid = blockIdx.x;
 	const int tid = threadIdx.x;
 	const int id = tid + bid * blockDim.x;
-	if (id >= 5) return;
+	//if (id >= 5) return;
 	C[id] = A[id] + B[id];
 	return;
 }
@@ -30,7 +31,7 @@ int main(){
 	setGPU();
 
 	//分配主机内存和设备内存，并初始化
-	int iElement = 512;  //set the size of element
+	int iElement = 5120;  //set the size of element
 	size_t bytesize = iElement * sizeof(float);  //设置内存空间
 
 	//设置主机内存空间
@@ -63,10 +64,15 @@ int main(){
 	cudaMemcpy(fpDevice_B, fpHost_B, bytesize, cudaMemcpyHostToDevice);
 
 	//调用核函数在设备中进行计算
-	dim3 block(32);
-	dim3 grid(iElement / 32);
+	dim3 block(512);
+	dim3 grid(iElement / 512);
+
+	//count time
+	double start = clock();
 	addfromGPU <<<grid, block>>> (fpDevice_A, fpDevice_B, fpDevice_C, iElement);
-	printf("\n");
+	double end = clock();
+	printf("%lf\n\n", end-start);
+
 	//拷贝回去并展示
 	cudaMemcpy(fpHost_C, fpDevice_C, bytesize, cudaMemcpyDeviceToHost);;
 	for (int i = 0; i < 10; i++)

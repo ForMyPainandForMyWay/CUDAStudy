@@ -1,4 +1,4 @@
-cuda程序不能使用cout输出？
+cuda程序不能使用cout输出
 # 核函数
 GPU可以看作是CPU的一个协处理器，其运行仍然受到CPU的控制
 主机对GPU设备的调用是通过调用核函数进行的
@@ -35,6 +35,7 @@ int main(void){
 `cudaDeviceSynchronize();`作用是等待调用GPU执行完毕
 # 线程模型
 线程分块是逻辑上的划分，物理上线程不分块
+线程划分：每个核函数分配一个grid执行，每个grid内部分为多个block（可能并行也可能串行，由SM决定）
 配置线程：`<<<grid_size, block_size>>>`
 + 每个线程的唯一表示由这两个元素确定，两者保存在==内建变量==中：
 1. gridDim.x = grid_size（指示grid的维度）
